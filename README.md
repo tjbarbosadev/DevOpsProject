@@ -1,4 +1,4 @@
-# Proposta de Arquitetura para o Website da Empresa (Foco em Baixo Custo)
+# Proposta de Arquitetura para o Website da Empresa
 
 ---
 

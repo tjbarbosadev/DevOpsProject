@@ -1,70 +1,124 @@
-# Proposta de Arquitetura AWS para Website Empresarial
+# Proposta de Arquitetura para o Website da Empresa (Foco em Baixo Custo)
 
-Esta proposta detalha a arquitetura e os custos estimados para a criação de um ambiente AWS otimizado para o novo website da empresa. O ambiente é projetado para maximizar a segurança, escalabilidade e disponibilidade com foco em práticas DevOps e custo reduzido.
-
-## Escopo da Proposta
-
-O ambiente contará com os seguintes recursos:
-- Cluster Kubernetes (EKS) com auto-scaling
-- Banco de Dados Amazon RDS com backups diários
-- Armazenamento de dados com Amazon S3 e Amazon EFS
-- Balanceamento de carga com Application Load Balancer (ALB)
-- Pipeline de CI/CD com AWS CodePipeline e CodeBuild
-- Monitoramento de logs e métricas com AWS CloudWatch
+---
 
 ## 1. Arquitetura da Nova Solução
 
-1. **Cluster Kubernetes (EKS)**
-   - Amazon EKS será utilizado para gerenciar o cluster Kubernetes, com instâncias de nós menores e configuração de auto-scaling.
-   - Utilização de três instâncias \`t3.small\` para os nós de trabalho, configuradas para escalar conforme a demanda.
+A proposta é construir uma arquitetura escalável, segura e de baixo custo, utilizando os melhores serviços AWS, com foco em otimização de custos e proximidade à região de São Paulo (sa-east-1).
 
-2. **Banco de Dados (Amazon RDS)**
-   - Amazon RDS com instância \`db.t3.micro\`, configurada em uma única zona de disponibilidade, com backups diários no Amazon S3.
-   - Backups armazenados no S3 com um volume médio de 10 GB.
+### Componentes Principais:
 
-3. **Armazenamento e Backup**
-   - Amazon S3 para armazenamento de arquivos estáticos e backups, com volume estimado em 10 GB.
-   - Amazon EFS para armazenamento compartilhado no cluster EKS, configurado para um volume reduzido.
+1. **Ambiente Kubernetes (Amazon EKS com instâncias EC2 Spot)**:
+   - Utilização do **Amazon EKS** para orquestrar os contêineres Docker.
+   - Uso de **instâncias EC2 Spot** para reduzir custos, principalmente para nós de worker no Kubernetes.
 
-4. **Balanceamento de Carga (ALB)**
-   - Application Load Balancer para distribuir o tráfego de entrada e verificar a saúde das instâncias.
+2. **Banco de Dados (Amazon RDS - MySQL ou PostgreSQL)**:
+   - **Amazon RDS** para bancos de dados MySQL ou PostgreSQL, com instâncias menores (\`db.t3.micro\` ou \`db.t3.small\`) para reduzir custos.
+   - **Backup diário** e **snapshots automatizados** para garantir a segurança dos dados.
 
-5. **CI/CD (AWS CodePipeline e CodeBuild)**
-   - CodePipeline e CodeBuild configurados para automação de builds e deploys, executados apenas nos commits principais para reduzir o uso.
+3. **Plataforma como Serviço (AWS Lightsail)**:
+   - **AWS Lightsail** para a implantação da aplicação de forma econômica, com instâncias simples e custos previsíveis.
 
-6. **Monitoramento e Segurança**
-   - AWS CloudWatch com monitoramento essencial e logs limitados a 5 GB/mês.
-   - AWS IAM para controle de acesso e permissões.
+4. **Backup e Persistência de Dados**:
+   - **Amazon S3** para armazenamento de backups e arquivos estáticos.
+
+5. **Balanceamento de Carga**:
+   - **Elastic Load Balancer (ALB)** para balanceamento de carga de forma econômica.
+
+6. **Segurança**:
+   - **AWS IAM**, **VPC**, **Security Groups**, e **AWS WAF** para controlar o acesso e proteger a aplicação.
+
+7. **CI/CD e DevOps**:
+   - **AWS CodePipeline** e **CodeBuild** para automação do processo de CI/CD.
+
+---
 
 ## 2. Prazo de Entrega
 
-**Estimativa de entrega**: **8 semanas**
+O prazo estimado para a construção da solução é de **2 meses** com o seguinte cronograma:
 
-1. Planejamento e Configuração Inicial: 2 semanas
-2. Implementação do Cluster EKS e Banco de Dados: 2 semanas
-3. Configuração de segurança, backups e balanceamento de carga: 2 semanas
-4. Implementação de CI/CD e Testes: 1 semana
-5. Revisão Final e Entrega: 1 semana
+| **Fase** | **Atividade**                       | **Duração**  | **Entrega Esperada**  |
+|----------|--------------------------------------|--------------|-----------------------|
+| Fase 1   | Planejamento e Design                | 1 semana     | Mês 1, Semana 1       |
+| Fase 2   | Implementação da Infraestrutura      | 3 semanas    | Mês 1, Semana 2-4     |
+| Fase 3   | Implementação de Backup e Persistência | 1 semana    | Mês 2, Semana 1       |
+| Fase 4   | Implementação de Balanceamento de Carga e Segurança | 2 semanas | Mês 2, Semana 2-3 |
+| Fase 5   | Implementação de CI/CD e Testes      | 2 semanas    | Mês 2, Semana 4      |
+| Fase 6   | Testes de Performance e Segurança    | 1 semana     | Mês 2, Semana 4      |
+
+---
 
 ## 3. Cronograma Macro de Entregas
 
-| Fase                        | Descrição                                  | Duração Estimada |
-|-----------------------------|--------------------------------------------|------------------|
-| Planejamento e Requisitos   | Definição dos detalhes e escopo do projeto | 2 semanas       |
-| Infraestrutura e Cluster    | Configuração do ambiente AWS e Kubernetes  | 2 semanas       |
-| Banco de Dados e Segurança  | Implementação de RDS, backup e segurança   | 2 semanas       |
-| CI/CD e Testes              | Configuração do pipeline e testes finais   | 2 semanas       |
+| **Fase** | **Atividade**                       | **Duração**  | **Entrega Esperada**  |
+|----------|--------------------------------------|--------------|-----------------------|
+| Fase 1   | Planejamento e Design                | 1 semana     | Mês 1, Semana 1       |
+| Fase 2   | Implementação da Infraestrutura      | 3 semanas    | Mês 1, Semana 2-4     |
+| Fase 3   | Implementação de Backup e Persistência | 1 semana    | Mês 2, Semana 1       |
+| Fase 4   | Implementação de Balanceamento de Carga e Segurança | 2 semanas | Mês 2, Semana 2-3 |
+| Fase 5   | Implementação de CI/CD e Testes      | 2 semanas    | Mês 2, Semana 4      |
+| Fase 6   | Testes de Performance e Segurança    | 1 semana     | Mês 2, Semana 4      |
 
-## 4. Valores Estimados Mensalmente
+---
 
-| Serviço                           | Valor Estimado Mensal |
-|-----------------------------------|------------------------|
-| Amazon EKS (Cluster + Nós)        | $195                  |
-| Banco de Dados (Amazon RDS)       | $15,23                |
-| Armazenamento (S3 + EFS)          | $1,73                 |
-| Application Load Balancer         | $23                   |
-| CI/CD (CodePipeline/CodeBuild)    | $10                   |
-| Monitoramento (CloudWatch)        | $5                    |
-| **Total Estimado**                | **$249,96/mês**       |
+## 4. Valores Estimados
 
-Esta configuração oferece uma arquitetura AWS econômica, garantindo segurança, escalabilidade e controle de acesso. O total estimado é de **$249,96 mensais**.
+### Serviços AWS e Estimativas de Custo:
+
+1. **Amazon EKS (usando instâncias EC2 Spot)**:
+   - Instâncias EC2 Spot (\`t3.medium\`): **US$ 0,014/hora**.
+   - Custo mensal de instâncias EC2 Spot (considerando 730 horas/mês): **US$ 10,22/mês**.
+
+2. **Amazon RDS (MySQL/PostgreSQL)**:
+   - Instância \`db.t3.micro\`: **US$ 0,017/hora**.
+   - Custo mensal de instância RDS: **US$ 12,41/mês**.
+   - Armazenamento (100GB): **US$ 10,00/mês**.
+   - Backup e snapshots: **US$ 9,50/mês** (com backup de 100GB).
+
+3. **AWS Lightsail**:
+   - Instância Lightsail (1 vCPU, 1GB RAM): **US$ 3,50/mês**.
+   - Armazenamento adicional em S3 (100GB): **US$ 2,30/mês**.
+
+4. **Elastic Load Balancer (ALB)**:
+   - Custo fixo: **US$ 0,0225/hora**.
+   - Custo mensal de ALB: **US$ 16,50/mês** (considerando 730 horas/mês).
+   - Custo adicional por GB de tráfego: **US$ 0,008/GB**.
+
+5. **Amazon S3**:
+   - Armazenamento: **US$ 0,023/GB/mês**.
+   - Para 100GB de backup: **US$ 2,30/mês**.
+
+6. **AWS WAF**:
+   - Custo básico: **US$ 5/mês**.
+   - Custos adicionais por regras e solicitações: **US$ 0,60/milhão de solicitações**.
+
+7. **Monitoramento (CloudWatch)**:
+   - Custo de logs: **US$ 0,30/GB**.
+   - Monitoramento básico de instâncias EC2: **US$ 3/instância/mês**.
+
+8. **CI/CD (AWS CodePipeline e CodeBuild)**:
+   - CodePipeline: **US$ 1/pipeline/mês**.
+   - CodeBuild: **US$ 0,0035/minuto de compilação**.
+
+---
+
+### Resumo dos Custos Mensais Estimados:
+
+| **Serviço**                          | **Custo Estimado**   |
+|--------------------------------------|----------------------|
+| **Amazon EKS (instâncias EC2 Spot)** | **US$ 10,22/mês**     |
+| **Amazon RDS (db.t3.micro)**         | **US$ 22,91/mês**     |
+| **AWS Lightsail (instância + S3)**   | **US$ 5,80/mês**      |
+| **Elastic Load Balancer (ALB)**      | **US$ 16,50/mês**     |
+| **Amazon S3 (backup)**               | **US$ 2,30/mês**      |
+| **AWS WAF**                          | **US$ 5,00/mês**      |
+| **Monitoramento (CloudWatch)**       | **US$ 3,30/mês**      |
+| **CI/CD (CodePipeline + CodeBuild)** | **US$ 2,50/mês**      |
+
+**Total Estimado de Custos Mensais**: **US$ 58,53/mês**
+
+---
+
+## Conclusão
+
+A solução apresentada oferece uma arquitetura otimizada para custos, utilizando serviços da AWS mais econômicos como **EC2 Spot** e **AWS Lightsail**, mantendo a escalabilidade, segurança e confiabilidade necessárias. O custo mensal estimado para a solução é de **US$ 58,53/mês**, com potencial para ajustar conforme o uso real.

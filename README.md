@@ -8,28 +8,145 @@ A proposta é construir uma arquitetura escalável, segura e de baixo custo, uti
 
 ### Componentes Principais:
 
-1. **Ambiente Kubernetes (Amazon EKS com instâncias EC2 Spot)**:
-   - Utilização do **Amazon EKS** para orquestrar os contêineres Docker.
-   - Uso de **instâncias EC2 Spot** para reduzir custos, principalmente para nós de worker no Kubernetes.
+1. **Ambiente Kubernetes (Amazon EKS com instâncias EC2 Spot)**
+   
+   **Opções:**
+   
+   - **Amazon EKS (usando instâncias EC2 Spot)**
+     - **Prós**:
+       - Orquestração de containers simplificada.
+       - Alta escalabilidade.
+       - Custos reduzidos ao utilizar instâncias EC2 Spot.
+     - **Contras**:
+       - Instâncias Spot podem ser interrompidas sem aviso, o que exige configuração de tolerância a falhas.
+       - Requer conhecimento técnico para configurar e otimizar.
+   
+   - **Amazon ECS (Elastic Container Service) com Fargate**
+     - **Prós**:
+       - Gerenciamento mais simples, sem necessidade de gerenciar infraestrutura de instâncias EC2.
+       - Pagamento por uso, sem necessidade de provisionamento de recursos.
+     - **Contras**:
+       - Custo maior para cargas de trabalho intensivas.
+       - Menos controle sobre a infraestrutura comparado ao EKS.
+   
+   - **Self-hosted Kubernetes em EC2 (sem EKS)**
+     - **Prós**:
+       - Total controle sobre a infraestrutura.
+       - Flexibilidade para otimização de custos com instâncias EC2 Spot e On-Demand.
+     - **Contras**:
+       - Requer mais esforço e conhecimento para a configuração e manutenção do cluster.
+       - Não tem os benefícios do gerenciamento automático do EKS.
+   
+2. **Banco de Dados (Amazon RDS - MySQL ou PostgreSQL)**
+   
+   **Opções:**
+   
+   - **Amazon RDS com MySQL/PostgreSQL**
+     - **Prós**:
+       - Serviço gerenciado, com backups automáticos, escalabilidade e alta disponibilidade.
+       - Facilidade de migração e manutenção.
+     - **Contras**:
+       - Custo maior em comparação com soluções autogerenciadas.
+       - Preço pode aumentar com instâncias de alta capacidade ou armazenamento.
+   
+   - **Amazon Aurora (compatível com MySQL/PostgreSQL)**
+     - **Prós**:
+       - Desempenho melhor que o RDS tradicional.
+       - Alta disponibilidade e escalabilidade automática.
+     - **Contras**:
+       - Custo mais elevado em relação ao RDS MySQL/PostgreSQL.
+       - Necessidade de um banco de dados mais complexo e recursos maiores.
+   
+   - **Banco de Dados Self-hosted em EC2**
+     - **Prós**:
+       - Total controle sobre configuração e custos.
+       - Pode ser mais barato se for bem gerenciado.
+     - **Contras**:
+       - Maior responsabilidade pela manutenção e backups.
+       - Pode ser difícil escalar e ajustar sem interrupções de serviço.
 
-2. **Banco de Dados (Amazon RDS - MySQL ou PostgreSQL)**:
-   - **Amazon RDS** para bancos de dados MySQL ou PostgreSQL, com instâncias menores (\`db.t3.micro\` ou \`db.t3.small\`) para reduzir custos.
-   - **Backup diário** e **snapshots automatizados** para garantir a segurança dos dados.
+3. **Plataforma como Serviço (AWS Lightsail)**
+   
+   **Opções:**
+   
+   - **AWS Lightsail**
+     - **Prós**:
+       - Simples de usar, instâncias com configuração fácil e preço fixo.
+       - Ideal para aplicativos de pequena a média escala.
+     - **Contras**:
+       - Menos flexível e escalável comparado com EC2 ou EKS.
+       - Recursos limitados para cargas de trabalho mais intensivas.
+   
+   - **AWS EC2 com Auto Scaling**
+     - **Prós**:
+       - Flexível e altamente escalável.
+       - Total controle sobre a infraestrutura e os recursos.
+     - **Contras**:
+       - Necessidade de configuração mais complexa.
+       - Custo imprevisível, dependendo da utilização.
+   
+   - **AWS Lambda (serverless)**
+     - **Prós**:
+       - Pagamento por execução, ideal para cargas intermitentes e pequenas.
+       - Não há necessidade de gerenciar servidores.
+     - **Contras**:
+       - Não adequado para todos os tipos de aplicativos (ex: aplicativos com estado ou de longo tempo de execução).
+       - Limitação de tempo de execução para cada função.
 
-3. **Plataforma como Serviço (AWS Lightsail)**:
-   - **AWS Lightsail** para a implantação da aplicação de forma econômica, com instâncias simples e custos previsíveis.
+4. **Backup e Persistência de Dados**
+   
+   **Opções:**
+   
+   - **Amazon S3**
+     - **Prós**:
+       - Armazenamento barato e altamente durável.
+       - Fácil de configurar e gerenciar.
+     - **Contras**:
+       - Acessar dados frequentemente pode gerar custos adicionais.
+       - Sem suporte nativo a bancos de dados em tempo real.
+   
+   - **Amazon Glacier (para backups frios)**
+     - **Prós**:
+       - Custo muito baixo para armazenamento de longo prazo.
+       - Ideal para arquivamento de dados.
+     - **Contras**:
+       - Acesso mais lento aos dados, não ideal para backups frequentes.
+       - A cobrança de recuperação de dados pode ser alta.
+   
+   - **Amazon EFS (Elastic File System)**
+     - **Prós**:
+       - Armazenamento de arquivos simples, escalável e acessível.
+       - Ideal para casos de uso com necessidade de acesso constante aos dados.
+     - **Contras**:
+       - Mais caro que o S3 para armazenamento de grandes volumes de dados.
+       - Menos adequado para backup frio.
 
-4. **Backup e Persistência de Dados**:
-   - **Amazon S3** para armazenamento de backups e arquivos estáticos.
+5. **Balanceamento de Carga**
 
-5. **Balanceamento de Carga**:
-   - **Elastic Load Balancer (ALB)** para balanceamento de carga de forma econômica.
-
-6. **Segurança**:
-   - **AWS IAM**, **VPC**, **Security Groups**, e **AWS WAF** para controlar o acesso e proteger a aplicação.
-
-7. **CI/CD e DevOps**:
-   - **AWS CodePipeline** e **CodeBuild** para automação do processo de CI/CD.
+   **Opções:**
+   
+   - **Elastic Load Balancer (ALB)**
+     - **Prós**:
+       - Fácil de configurar e integrar com instâncias EC2 e ECS.
+       - Suporta balanceamento de carga com SSL/TLS e outras features avançadas.
+     - **Contras**:
+       - Custo fixo mensal, pode ser mais caro para tráfego intenso.
+   
+   - **Network Load Balancer (NLB)**
+     - **Prós**:
+       - Ideal para alto desempenho e tráfego com latência mínima.
+       - Pode lidar com tráfego TCP/UDP.
+     - **Contras**:
+       - Menos flexível que o ALB para tráfego HTTP/S.
+       - Custo mais elevado dependendo do uso.
+   
+   - **AWS Lightsail Load Balancer**
+     - **Prós**:
+       - Preço fixo e simples de configurar.
+       - Ideal para cargas menores e tráfego previsível.
+     - **Contras**:
+       - Funcionalidade limitada em comparação com ALB e NLB.
+       - Menos escalável para cargas grandes.
 
 ---
 
